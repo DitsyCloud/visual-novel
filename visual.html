@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Novel Romance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #title-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            overflow: hidden;
+        }
+        #title-screen img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+        #start-button {
+            position: relative;
+            margin-top: 80vh;
+            padding: 16px 32px;
+            font-size: 24px;
+            background: rgba(34, 139, 34, 0.8);
+            color: white;
+            border: 4px solid white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        #start-button:hover {
+            background: rgba(34, 139, 34, 1);
+            transform: scale(1.1);
+        }
+        #game-container {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        #background-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+        #character-img {
+            width: 600px;
+            height: auto;
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #text-box {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(34, 139, 34, 0.8));
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            width: 85%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 3px solid white;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
+        }
+        .choice {
+            display: block;
+            margin: 30px auto;
+            padding: 18px 36px;
+            font-size: 24px;
+            background: rgba(34, 139, 34, 0.9);
+            color: white;
+            border: 4px solid white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 70%;
+            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
+        }
+        .choice:hover {
+            background: rgba(34, 139, 34, 1);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <audio id="background-music" autoplay loop>
+        <source src="mysterious_romantic_music.mp3" type="audio/mpeg">
+    </audio>
+    
+    <div id="title-screen">
+        <img src="4E607C80-A73A-453A-AF61-F919A17F937C.jpg" alt="Titre du jeu">
+        <button id="start-button" onclick="startGame()">Start</button>
+    </div>
+
+    <div id="game-container">
+        <img id="background-img" src="background.jpg" alt="Fond d'écran">
+        <img id="character-img" src="character1.png" alt="Personnage">
+        <div id="text-box"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let music = document.getElementById("background-music");
+            function playMusic() {
+                music.play().catch(() => {
+                    console.log("Autoplay bloqué, l'utilisateur doit interagir.");
+                });
+                document.removeEventListener("click", playMusic);
+            }
+            document.addEventListener("click", playMusic);
+        });
+
+        let musicStarted = false;
+        function startGame() {
+            document.getElementById("title-screen").style.display = "none";
+            document.getElementById("game-container").style.display = "block";
+            nextScene(0);
+        }
+
+        let scenes = [
+            { text: "Oh, c'est encore toi... tu es nouvelle au Japon ?", img: "character1.png", choices: [{ text: "Oui.. me promener m'aide à faire le vide, cette nouvelle vie est stressante !", next: 1 }, { text: "Je t'en pose des questions ? Laisse-moi me balader en paix, merci !", next: 2 }] },
+            { text: "Alex sourit et te parle.", img: "character2.png", choices: [{ text: "Parler de la météo", next: 3 }, { text: "Poser une question sur lui", next: 4 }] },
+            { text: "Alex semble déçu et part.", img: "character3.png", choices: [] }
+        ];
+
+        function typeWriterEffect(element, text, i = 0) {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i);
+                setTimeout(() => typeWriterEffect(element, text, i + 1), 50);
+            }
+        }
+
+        function nextScene(index) {
+            let scene = scenes[index];
+            document.getElementById("character-img").src = scene.img;
+            let textBox = document.getElementById("text-box");
+            textBox.innerHTML = "";
+            typeWriterEffect(textBox, scene.text);
+            
+            let choicesContainer = document.getElementById("game-container");
+            document.querySelectorAll(".choice").forEach(button => button.remove());
+            
+            scene.choices.forEach(choice => {
+                let btn = document.createElement("button");
+                btn.innerText = choice.text;
+                btn.classList.add("choice");
+                btn.onclick = () => nextScene(choice.next);
+                choicesContainer.appendChild(btn);
+            });
+        }
+    </script>
+</body>
+</html>
